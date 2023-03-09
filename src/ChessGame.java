@@ -29,8 +29,12 @@ public class ChessGame {
         JButton cyclePromotionPieceButton = new JButton("Pawn Promotes to: Queen");
         cyclePromotionPieceButton.addActionListener(listener);
 
+        JButton flipBoardButton = new JButton("Flip Board");
+        flipBoardButton.addActionListener(listener);
+
         menuBar.add(toggleCaptureMapButton);
         menuBar.add(cyclePromotionPieceButton);
+        menuBar.add(flipBoardButton);
         frame.setJMenuBar(menuBar);
 
         // Show frame
