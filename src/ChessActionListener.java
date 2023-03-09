@@ -49,6 +49,11 @@ public class ChessActionListener implements ActionListener {
                 button.setText("Pawn Promotes to: Queen");
                 //chessBoard.setPromotionType(PieceType.QUEEN);
             }
+            case "Flip Board" ->
+            {
+                chessBoard.flipBoard();
+                panel.paintComponent(panel.getGraphics());
+            }
         }
     }
 }
