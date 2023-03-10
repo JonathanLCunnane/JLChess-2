@@ -5,6 +5,8 @@ public class Board
 {
     long[] bitBoards = new long[12];
     int enPassantBit;
+    int halfMoveClock;
+    int fullMoveNumber;
     boolean isWhitesMove;
     boolean whiteKingSideCastle;
     boolean whiteQueenSideCastle;
@@ -66,6 +68,13 @@ public class Board
 
         // Getting en passant square
         if (!Objects.equals(data[3], "-")) enPassantBit = getBitIndex(data[3]);
+        else enPassantBit = -1;
+
+        // Get half move clock number.
+        halfMoveClock = Integer.parseInt(data[4]);
+
+        // Get full move number.
+        halfMoveClock = Integer.parseInt(data[5]);
     }
 
     long getPieceSet(int pieceSetEnum)
