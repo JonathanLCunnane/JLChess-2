@@ -51,7 +51,7 @@ public class ChessActionListener implements ActionListener {
             }
             case "Flip Board" ->
             {
-                chessBoard.flipBoard();
+                panel.flipped = true;
                 panel.paintComponent(panel.getGraphics());
             }
         }
