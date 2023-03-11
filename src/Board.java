@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class Board
@@ -12,7 +14,6 @@ public class Board
     boolean whiteQueenSideCastle;
     boolean blackKingSideCastle;
     boolean blackQueenSideCastle;
-
 
     Board()
     {
@@ -75,6 +76,98 @@ public class Board
 
         // Get full move number.
         fullMoveNumber = Integer.parseInt(data[5]);
+    }
+
+    List<int[]> possibleMoves()
+    {
+        BoardConsts.WHITE_PIECES =
+                        bitBoards[EnumPiece.whitePawns.ordinal()] |
+                        bitBoards[EnumPiece.whiteKnights.ordinal()] |
+                        bitBoards[EnumPiece.whiteBishops.ordinal()] |
+                        bitBoards[EnumPiece.whiteRooks.ordinal()] |
+                        bitBoards[EnumPiece.whiteQueens.ordinal()] |
+                        bitBoards[EnumPiece.whiteKing.ordinal()];
+        BoardConsts.BLACK_PIECES =
+                bitBoards[EnumPiece.blackPawns.ordinal()] |
+                        bitBoards[EnumPiece.blackKnights.ordinal()] |
+                        bitBoards[EnumPiece.blackBishops.ordinal()] |
+                        bitBoards[EnumPiece.blackRooks.ordinal()] |
+                        bitBoards[EnumPiece.blackQueens.ordinal()] |
+                        bitBoards[EnumPiece.blackKing.ordinal()];
+        BoardConsts.OCCUPIED_SQUARES = BoardConsts.BLACK_PIECES | BoardConsts.WHITE_PIECES;
+        BoardConsts.EMPTY_SQUARES = ~BoardConsts.OCCUPIED_SQUARES;
+        if (isWhitesMove) return possibleMovesW();
+        return possibleMovesB();
+    }
+
+    private List<int[]> possibleMovesW() // Returns all possible moves with format {from, to}
+    {
+        List<int[]> moves = new ArrayList<>();
+        moves.addAll(possibleMovesWP());
+        // moves.addAll(possibleMovesWN());
+        // moves.addAll(possibleMovesWB());
+        // moves.addAll(possibleMovesWR());
+        // moves.addAll(possibleMovesWQ());
+        // moves.addAll(possibleMovesWK());
+        return moves;
+    }
+
+    private List<int[]> possibleMovesB()
+    {
+        List<int[]> moves = new ArrayList<>();
+        moves.addAll(possibleMovesBP());
+        // moves.addAll(possibleMovesBN());
+        // moves.addAll(possibleMovesBB());
+        // moves.addAll(possibleMovesBR());
+        // moves.addAll(possibleMovesBQ());
+        // moves.addAll(possibleMovesBK());
+        return moves;
+    }
+
+    private List<int[]> possibleMovesWP()
+    {
+        long mvs;
+        List<int[]> moves = new ArrayList<>();
+
+        mvs = possibleMovesWPSinglePush();
+        for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr - 8, sqr});
+
+        mvs = possibleMovesWPDoublePush();
+        for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr - 16, sqr});
+        return moves;
+    }
+
+    private List<int[]> possibleMovesBP()
+    {
+        long mvs;
+        List<int[]> moves = new ArrayList<>();
+
+        mvs = possibleMovesBPSinglePush();
+        for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr + 8, sqr});
+
+        mvs = possibleMovesBPDoublePush();
+        for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr + 16, sqr});
+        return moves;
+    }
+
+    private long possibleMovesWPSinglePush()
+    {
+        return (bitBoards[EnumPiece.whitePawns.ordinal()] << 8) & BoardConsts.EMPTY_SQUARES;
+    }
+
+    private long possibleMovesWPDoublePush()
+    {
+        return (possibleMovesWPSinglePush() << 8) & BoardConsts.EMPTY_SQUARES & BoardConsts.RANK_4;
+    }
+
+    private long possibleMovesBPSinglePush()
+    {
+        return (bitBoards[EnumPiece.blackPawns.ordinal()] >> 8) & BoardConsts.EMPTY_SQUARES;
+    }
+
+    private long possibleMovesBPDoublePush()
+    {
+        return (possibleMovesBPSinglePush() >> 8) & BoardConsts.EMPTY_SQUARES & BoardConsts.RANK_5;
     }
 
     long getPieceSet(int pieceSetEnum)
