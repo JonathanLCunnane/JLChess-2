@@ -78,7 +78,7 @@ public class Board
         fullMoveNumber = Integer.parseInt(data[5]);
     }
 
-    List<int[]> possibleMoves()
+    List<int[]> possibleMoves(boolean flipped)
     {
         BoardConsts.WHITE_PIECES =
                         bitBoards[EnumPiece.whitePawns.ordinal()] |
@@ -96,57 +96,74 @@ public class Board
                         bitBoards[EnumPiece.blackKing.ordinal()];
         BoardConsts.OCCUPIED_SQUARES = BoardConsts.BLACK_PIECES | BoardConsts.WHITE_PIECES;
         BoardConsts.EMPTY_SQUARES = ~BoardConsts.OCCUPIED_SQUARES;
-        if (isWhitesMove) return possibleMovesW();
-        return possibleMovesB();
+        if (isWhitesMove) return possibleMovesW(flipped);
+        return possibleMovesB(flipped);
     }
 
-    private List<int[]> possibleMovesW() // Returns all possible moves with format {from, to}
+    private List<int[]> possibleMovesW(boolean flipped) // Returns all possible moves with format {from, to}
     {
         List<int[]> moves = new ArrayList<>();
-        moves.addAll(possibleMovesWP());
-        // moves.addAll(possibleMovesWN());
-        // moves.addAll(possibleMovesWB());
-        // moves.addAll(possibleMovesWR());
-        // moves.addAll(possibleMovesWQ());
-        // moves.addAll(possibleMovesWK());
+        moves.addAll(possibleMovesWP(flipped));
+        // moves.addAll(possibleMovesWN(flipped));
+        // moves.addAll(possibleMovesWB(flipped));
+        // moves.addAll(possibleMovesWR(flipped));
+        // moves.addAll(possibleMovesWQ(flipped));
+        // moves.addAll(possibleMovesWK(flipped));
         return moves;
     }
 
-    private List<int[]> possibleMovesB()
+    private List<int[]> possibleMovesB(boolean flipped)
     {
         List<int[]> moves = new ArrayList<>();
-        moves.addAll(possibleMovesBP());
-        // moves.addAll(possibleMovesBN());
-        // moves.addAll(possibleMovesBB());
-        // moves.addAll(possibleMovesBR());
-        // moves.addAll(possibleMovesBQ());
-        // moves.addAll(possibleMovesBK());
+        moves.addAll(possibleMovesBP(flipped));
+        // moves.addAll(possibleMovesBN(flipped));
+        // moves.addAll(possibleMovesBB(flipped));
+        // moves.addAll(possibleMovesBR(flipped));
+        // moves.addAll(possibleMovesBQ(flipped));
+        // moves.addAll(possibleMovesBK(flipped));
         return moves;
     }
 
-    private List<int[]> possibleMovesWP()
+    private List<int[]> possibleMovesWP(boolean flipped)
     {
         long mvs;
         List<int[]> moves = new ArrayList<>();
 
         mvs = possibleMovesWPSinglePush();
+        if (flipped) {
+            mvs = flippedBitBoard(mvs);
+            for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr + 8, sqr});
+        }
         for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr - 8, sqr});
 
         mvs = possibleMovesWPDoublePush();
+        if (flipped) {
+            mvs = flippedBitBoard(mvs);
+            for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr + 16, sqr});
+        }
         for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr - 16, sqr});
         return moves;
     }
 
-    private List<int[]> possibleMovesBP()
+    private List<int[]> possibleMovesBP(boolean flipped)
     {
         long mvs;
         List<int[]> moves = new ArrayList<>();
 
         mvs = possibleMovesBPSinglePush();
-        for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr + 8, sqr});
+        if (flipped)
+        {
+            mvs = flippedBitBoard(mvs);
+            for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr - 8, sqr});
+        }
+        else for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr + 8, sqr});
 
         mvs = possibleMovesBPDoublePush();
-        for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr + 16, sqr});
+        if (flipped) {
+            mvs = flippedBitBoard(mvs);
+            for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr - 16, sqr});
+        }
+        else for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr + 16, sqr});
         return moves;
     }
 
@@ -183,8 +200,8 @@ public class Board
         return idx;
     }
 
-    void flipBoard()
+    long flippedBitBoard(long bitBoard)
     {
-        for (EnumPiece piece: EnumPiece.values()) bitBoards[piece.ordinal()] = Long.reverseBytes(bitBoards[piece.ordinal()]);
+        return Long.reverseBytes(bitBoard);
     }
 }
