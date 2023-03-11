@@ -74,7 +74,7 @@ public class Board
         halfMoveClock = Integer.parseInt(data[4]);
 
         // Get full move number.
-        halfMoveClock = Integer.parseInt(data[5]);
+        fullMoveNumber = Integer.parseInt(data[5]);
     }
 
     long getPieceSet(int pieceSetEnum)
