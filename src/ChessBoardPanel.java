@@ -12,12 +12,79 @@ public class ChessBoardPanel extends JPanel
 {
     private final int boardSize = 512;
     private final int marginSize = 16;
+    private Integer[] clickIndicatorLocation = {null, null};
+    private Integer[] previousClickIndicatorLocation = {null, null};
     Board chessBoard;
     BufferedImage boardImage = ImageGetter.tryGetImage("/img/board.png", getClass());
+    boolean flipped;
 
     ChessBoardPanel(Board board)
     {
         chessBoard = board;
+        addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent mouseEvent) {
+                int extraTopMargin = (getHeight() - boardSize)/2;
+                int extraSideMargin = (getWidth() - boardSize)/2;
+                int columnBoard = mouseEvent.getX() - extraSideMargin;
+                int rowBoard = mouseEvent.getY() - extraTopMargin;
+
+                int columnIdx = columnBoard / 64;
+                int rowIdx = rowBoard / 64;
+
+                if ((columnIdx >= 0 && columnIdx < 8) && (rowIdx >= 0 && rowIdx < 8))
+                {
+                    clickIndicatorLocation[0] = rowIdx;
+                    clickIndicatorLocation[1] = columnIdx;
+                }
+                else
+                {
+                    clickIndicatorLocation[0] = null;
+                    clickIndicatorLocation[1] = null;
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent mouseEvent) {
+                Integer[] newClickIndicatorLocation = new Integer[] {null, null};
+
+                int extraTopMargin = (getHeight() - boardSize)/2;
+                int extraSideMargin = (getWidth() - boardSize)/2;
+                int columnBoard = mouseEvent.getX() - extraSideMargin;
+                int rowBoard = mouseEvent.getY() - extraTopMargin;
+
+                int columnIdx = columnBoard / 64;
+                int rowIdx = rowBoard / 64;
+
+                if ((columnIdx >= 0 && columnIdx < 8) && (rowIdx >= 0 && rowIdx < 8))
+                {
+                    newClickIndicatorLocation[0] = rowIdx;
+                    newClickIndicatorLocation[1] = columnIdx;
+                }
+                if (Arrays.equals(clickIndicatorLocation, newClickIndicatorLocation))
+                {
+                    if (Objects.equals(clickIndicatorLocation[0], previousClickIndicatorLocation[0]) && Objects.equals(clickIndicatorLocation[1], previousClickIndicatorLocation[1])) clickIndicatorLocation = new Integer[] {null, null};
+
+                    paintComponent(getGraphics());
+                    previousClickIndicatorLocation = clickIndicatorLocation.clone();
+                }
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent mouseEvent) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent mouseEvent) {
+
+            }
+        });
     }
 
     @Override
@@ -36,6 +103,7 @@ public class ChessBoardPanel extends JPanel
         for (EnumPiece piece: EnumPiece.values())
         {
             long currBitBoard = chessBoard.bitBoards[piece.ordinal()];
+            if (flipped) currBitBoard = chessBoard.flippedBitBoard(currBitBoard);
             for (int square = 63; square >= 0; square--)
             {
                 int row = square / 8;
@@ -45,6 +113,39 @@ public class ChessBoardPanel extends JPanel
                     drawPiece(g, piece, extraSideMargin, extraTopMargin, row, column);
                 }
                 currBitBoard >>= 1;
+            }
+        }
+
+        if (clickIndicatorLocation[0] != null && clickIndicatorLocation[1] != null)
+        {
+            // Draw click indicator
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setStroke(new BasicStroke(3));
+            g2.setColor(Color.BLUE);
+            g2.drawArc(
+                    marginSize + extraSideMargin + 24 + (clickIndicatorLocation[1] * 64),
+                    marginSize + extraTopMargin + 24 + (clickIndicatorLocation[0] * 64),
+                    16,
+                    16,
+                    0,
+                    360
+            );
+
+            // Draw move indicator(s)
+            int currSquare = (7 - clickIndicatorLocation[0]) * 8 + (7 - clickIndicatorLocation[1]);
+            List<int[]> moves = chessBoard.possibleMoves(flipped);
+            moves.removeIf(move -> move[0] != currSquare);
+            g2.setColor(Color.RED);
+            if (moves.size() > 0) for (int[] move: moves)
+            {
+                g2.drawArc(
+                        marginSize + extraSideMargin + 24 + ((7 - (move[1] % 8)) * 64),
+                        marginSize + extraTopMargin + 24 + ((7 - (move[1] / 8)) * 64),
+                        16,
+                        16,
+                        0,
+                        360
+                );
             }
         }
     }
@@ -58,6 +159,5 @@ public class ChessBoardPanel extends JPanel
                 null
         );
     }
-
 }
 
