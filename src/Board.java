@@ -78,7 +78,7 @@ public class Board
         fullMoveNumber = Integer.parseInt(data[5]);
     }
 
-    List<int[]> possibleMoves(boolean flipped)
+    List<int[]> possibleMoves()
     {
         BoardConsts.WHITE_PIECES =
                         bitBoards[EnumPiece.whitePawns.ordinal()] |
@@ -138,10 +138,10 @@ public class Board
 
         // Captures
         curr = possibleMovesWPEastCapture();
-        for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr, sqr + 7});
+        for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr, sqr + 9});
 
         curr = possibleMovesWPWestCapture();
-        for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr, sqr + 9});
+        for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr, sqr + 7});
 
         return moves;
     }
@@ -190,22 +190,22 @@ public class Board
 
     private long possibleMovesWPEastCapture()
     {
-        return bitBoards[EnumPiece.whitePawns.ordinal()] & ((BoardConsts.BLACK_PIECES & ~BoardConsts.FILE_H) >> 9);
+        return bitBoards[EnumPiece.whitePawns.ordinal()] & ((BoardConsts.BLACK_PIECES & ~BoardConsts.FILE_A) >> 9);
     }
 
     private long possibleMovesWPWestCapture()
     {
-        return bitBoards[EnumPiece.whitePawns.ordinal()] & ((BoardConsts.BLACK_PIECES & ~BoardConsts.FILE_A) >> 7);
+        return bitBoards[EnumPiece.whitePawns.ordinal()] & ((BoardConsts.BLACK_PIECES & ~BoardConsts.FILE_H) >> 7);
     }
 
     private long possibleMovesBPEastCapture()
     {
-        return bitBoards[EnumPiece.blackPawns.ordinal()] & ((BoardConsts.WHITE_PIECES & ~BoardConsts.FILE_A) << 9);
+        return bitBoards[EnumPiece.blackPawns.ordinal()] & ((BoardConsts.WHITE_PIECES & ~BoardConsts.FILE_H) << 9);
     }
 
     private long possibleMovesBPWestCapture()
     {
-        return bitBoards[EnumPiece.blackPawns.ordinal()] & ((BoardConsts.WHITE_PIECES & ~BoardConsts.FILE_H) << 7);
+        return bitBoards[EnumPiece.blackPawns.ordinal()] & ((BoardConsts.WHITE_PIECES & ~BoardConsts.FILE_A) << 7);
     }
 
     long getPieceSet(int pieceSetEnum)
