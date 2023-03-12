@@ -96,74 +96,75 @@ public class Board
                         bitBoards[EnumPiece.blackKing.ordinal()];
         BoardConsts.OCCUPIED_SQUARES = BoardConsts.BLACK_PIECES | BoardConsts.WHITE_PIECES;
         BoardConsts.EMPTY_SQUARES = ~BoardConsts.OCCUPIED_SQUARES;
-        if (isWhitesMove) return possibleMovesW(flipped);
-        return possibleMovesB(flipped);
+        if (isWhitesMove) return possibleMovesW();
+        return possibleMovesB();
     }
 
-    private List<int[]> possibleMovesW(boolean flipped) // Returns all possible moves with format {from, to}
+    private List<int[]> possibleMovesW() // Returns all possible moves with format {from, to}
     {
         List<int[]> moves = new ArrayList<>();
-        moves.addAll(possibleMovesWP(flipped));
-        // moves.addAll(possibleMovesWN(flipped));
-        // moves.addAll(possibleMovesWB(flipped));
-        // moves.addAll(possibleMovesWR(flipped));
-        // moves.addAll(possibleMovesWQ(flipped));
-        // moves.addAll(possibleMovesWK(flipped));
+        moves.addAll(possibleMovesWP());
+        // moves.addAll(possibleMovesWN());
+        // moves.addAll(possibleMovesWB());
+        // moves.addAll(possibleMovesWR());
+        // moves.addAll(possibleMovesWQ());
+        // moves.addAll(possibleMovesWK());
         return moves;
     }
 
-    private List<int[]> possibleMovesB(boolean flipped)
+    private List<int[]> possibleMovesB()
     {
         List<int[]> moves = new ArrayList<>();
-        moves.addAll(possibleMovesBP(flipped));
-        // moves.addAll(possibleMovesBN(flipped));
-        // moves.addAll(possibleMovesBB(flipped));
-        // moves.addAll(possibleMovesBR(flipped));
-        // moves.addAll(possibleMovesBQ(flipped));
-        // moves.addAll(possibleMovesBK(flipped));
+        moves.addAll(possibleMovesBP());
+        // moves.addAll(possibleMovesBN());
+        // moves.addAll(possibleMovesBB());
+        // moves.addAll(possibleMovesBR());
+        // moves.addAll(possibleMovesBQ());
+        // moves.addAll(possibleMovesBK());
         return moves;
     }
 
-    private List<int[]> possibleMovesWP(boolean flipped)
+    private List<int[]> possibleMovesWP()
     {
-        long mvs;
+        long curr;
         List<int[]> moves = new ArrayList<>();
 
-        mvs = possibleMovesWPSinglePush();
-        if (flipped) {
-            mvs = flippedBitBoard(mvs);
-            for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr + 8, sqr});
-        }
-        for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr - 8, sqr});
+        // Moves
+        curr = possibleMovesWPSinglePush();
+        for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr - 8, sqr});
 
-        mvs = possibleMovesWPDoublePush();
-        if (flipped) {
-            mvs = flippedBitBoard(mvs);
-            for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr + 16, sqr});
-        }
-        for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr - 16, sqr});
+        curr = possibleMovesWPDoublePush();
+        for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr - 16, sqr});
+
+        // Captures
+        curr = possibleMovesWPEastCapture();
+        for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr, sqr + 7});
+
+        curr = possibleMovesWPWestCapture();
+        for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr, sqr + 9});
+
         return moves;
     }
 
-    private List<int[]> possibleMovesBP(boolean flipped)
+    private List<int[]> possibleMovesBP()
     {
-        long mvs;
+        long curr;
         List<int[]> moves = new ArrayList<>();
 
-        mvs = possibleMovesBPSinglePush();
-        if (flipped)
-        {
-            mvs = flippedBitBoard(mvs);
-            for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr - 8, sqr});
-        }
-        else for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr + 8, sqr});
+        // Moves
+        curr = possibleMovesBPSinglePush();
+        for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr + 8, sqr});
 
-        mvs = possibleMovesBPDoublePush();
-        if (flipped) {
-            mvs = flippedBitBoard(mvs);
-            for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr - 16, sqr});
-        }
-        else for (int sqr = 0; sqr < 64; sqr++) if (((mvs >> sqr) & 1) == 1) moves.add(new int[] {sqr + 16, sqr});
+        curr = possibleMovesBPDoublePush();
+        for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr + 16, sqr});
+
+        // Captures
+        curr = possibleMovesBPEastCapture();
+        for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr, sqr - 9});
+
+        curr = possibleMovesBPWestCapture();
+        for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr, sqr - 7});
+
         return moves;
     }
 
@@ -185,6 +186,26 @@ public class Board
     private long possibleMovesBPDoublePush()
     {
         return (possibleMovesBPSinglePush() >> 8) & BoardConsts.EMPTY_SQUARES & BoardConsts.RANK_5;
+    }
+
+    private long possibleMovesWPEastCapture()
+    {
+        return bitBoards[EnumPiece.whitePawns.ordinal()] & ((BoardConsts.BLACK_PIECES & ~BoardConsts.FILE_H) >> 9);
+    }
+
+    private long possibleMovesWPWestCapture()
+    {
+        return bitBoards[EnumPiece.whitePawns.ordinal()] & ((BoardConsts.BLACK_PIECES & ~BoardConsts.FILE_A) >> 7);
+    }
+
+    private long possibleMovesBPEastCapture()
+    {
+        return bitBoards[EnumPiece.blackPawns.ordinal()] & ((BoardConsts.WHITE_PIECES & ~BoardConsts.FILE_A) << 9);
+    }
+
+    private long possibleMovesBPWestCapture()
+    {
+        return bitBoards[EnumPiece.blackPawns.ordinal()] & ((BoardConsts.WHITE_PIECES & ~BoardConsts.FILE_H) << 7);
     }
 
     long getPieceSet(int pieceSetEnum)
