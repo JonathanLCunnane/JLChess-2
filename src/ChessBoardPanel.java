@@ -132,12 +132,15 @@ public class ChessBoardPanel extends JPanel
             );
 
             // Draw move indicator(s)
-            int currSquare = (7 - clickIndicatorLocation[0]) * 8 + (7 - clickIndicatorLocation[1]);
+            int currSquare;
+            if (flipped) currSquare = (clickIndicatorLocation[0]) * 8 + (7 - clickIndicatorLocation[1]);
+            else currSquare = (7 - clickIndicatorLocation[0]) * 8 + (7 - clickIndicatorLocation[1]);
             List<int[]> moves = chessBoard.possibleMoves(flipped);
             moves.removeIf(move -> move[0] != currSquare);
             g2.setColor(Color.RED);
             if (moves.size() > 0) for (int[] move: moves)
             {
+                if (flipped) move[1] = (7 - (move[1] / 8)) * 8 + move[1] % 8;
                 g2.drawArc(
                         marginSize + extraSideMargin + 24 + ((7 - (move[1] % 8)) * 64),
                         marginSize + extraTopMargin + 24 + ((7 - (move[1] / 8)) * 64),
