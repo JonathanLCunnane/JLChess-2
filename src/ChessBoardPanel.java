@@ -135,7 +135,7 @@ public class ChessBoardPanel extends JPanel
             int currSquare;
             if (flipped) currSquare = (clickIndicatorLocation[0]) * 8 + (7 - clickIndicatorLocation[1]);
             else currSquare = (7 - clickIndicatorLocation[0]) * 8 + (7 - clickIndicatorLocation[1]);
-            List<int[]> moves = chessBoard.possibleMoves(flipped);
+            List<int[]> moves = chessBoard.possibleMoves();
             moves.removeIf(move -> move[0] != currSquare);
             g2.setColor(Color.RED);
             if (moves.size() > 0) for (int[] move: moves)
