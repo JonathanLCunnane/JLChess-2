@@ -6,7 +6,7 @@ import java.util.Objects;
 public class Board
 {
     long[] bitBoards = new long[12];
-    int enPassantBit;
+    long enPassantTargetSquare;
     int halfMoveClock;
     int fullMoveNumber;
     boolean isWhitesMove;
@@ -68,8 +68,8 @@ public class Board
         }
 
         // Getting en passant square
-        if (!Objects.equals(data[3], "-")) enPassantBit = getBitIndex(data[3]);
-        else enPassantBit = -1;
+        if (!Objects.equals(data[3], "-")) enPassantTargetSquare = 1L << getBitIndex(data[3]);
+        else enPassantTargetSquare = 0;
 
         // Get half move clock number.
         halfMoveClock = Integer.parseInt(data[4]);
@@ -136,7 +136,7 @@ public class Board
         curr = possibleMovesWPDoublePush();
         for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr - 16, sqr});
 
-        // Captures
+        // Captures and en passant
         curr = possibleMovesWPEastCapture();
         for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr, sqr + 9});
 
@@ -158,7 +158,7 @@ public class Board
         curr = possibleMovesBPDoublePush();
         for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr + 16, sqr});
 
-        // Captures
+        // Captures and en passant
         curr = possibleMovesBPEastCapture();
         for (int sqr = 0; sqr < 64; sqr++) if (((curr >> sqr) & 1) == 1) moves.add(new int[] {sqr, sqr - 9});
 
@@ -190,22 +190,22 @@ public class Board
 
     private long possibleMovesWPEastCapture()
     {
-        return bitBoards[EnumPiece.whitePawns.ordinal()] & ((BoardConsts.BLACK_PIECES & ~BoardConsts.FILE_A) >> 9);
+        return bitBoards[EnumPiece.whitePawns.ordinal()] & (((BoardConsts.BLACK_PIECES | enPassantTargetSquare) & ~BoardConsts.FILE_A) >> 9);
     }
 
     private long possibleMovesWPWestCapture()
     {
-        return bitBoards[EnumPiece.whitePawns.ordinal()] & ((BoardConsts.BLACK_PIECES & ~BoardConsts.FILE_H) >> 7);
+        return bitBoards[EnumPiece.whitePawns.ordinal()] & (((BoardConsts.BLACK_PIECES | enPassantTargetSquare) & ~BoardConsts.FILE_H) >> 7);
     }
 
     private long possibleMovesBPEastCapture()
     {
-        return bitBoards[EnumPiece.blackPawns.ordinal()] & ((BoardConsts.WHITE_PIECES & ~BoardConsts.FILE_H) << 9);
+        return bitBoards[EnumPiece.blackPawns.ordinal()] & (((BoardConsts.WHITE_PIECES | enPassantTargetSquare) & ~BoardConsts.FILE_H) << 9);
     }
 
     private long possibleMovesBPWestCapture()
     {
-        return bitBoards[EnumPiece.blackPawns.ordinal()] & ((BoardConsts.WHITE_PIECES & ~BoardConsts.FILE_A) << 7);
+        return bitBoards[EnumPiece.blackPawns.ordinal()] & (((BoardConsts.WHITE_PIECES | enPassantTargetSquare) & ~BoardConsts.FILE_A) << 7);
     }
 
     long getPieceSet(int pieceSetEnum)
@@ -216,8 +216,8 @@ public class Board
     int getBitIndex(String square)
     {
         int idx = 0;
-        idx += (int) (square.charAt(0)) - 97;
-        idx += (square.charAt(1) - 1) * 8;
+        idx += 104 - (int) (square.charAt(0));
+        idx += (Integer.parseInt(square.substring(1)) - 1) * 8;
         return idx;
     }
 
