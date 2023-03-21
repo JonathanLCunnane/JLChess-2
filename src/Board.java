@@ -104,7 +104,7 @@ public class Board
     {
         List<int[]> moves = new ArrayList<>();
         moves.addAll(possibleMovesWP());
-        // moves.addAll(possibleMovesWN());
+        moves.addAll(possibleMovesWN());
         // moves.addAll(possibleMovesWB());
         // moves.addAll(possibleMovesWR());
         // moves.addAll(possibleMovesWQ());
@@ -116,7 +116,7 @@ public class Board
     {
         List<int[]> moves = new ArrayList<>();
         moves.addAll(possibleMovesBP());
-        // moves.addAll(possibleMovesBN());
+        moves.addAll(possibleMovesBN());
         // moves.addAll(possibleMovesBB());
         // moves.addAll(possibleMovesBR());
         // moves.addAll(possibleMovesBQ());
@@ -168,6 +168,34 @@ public class Board
         return moves;
     }
 
+    private List<int[]> possibleMovesWN()
+    {
+        long curr;
+        List<int[]> moves = new ArrayList<>();
+
+        for (int sqr = 0; sqr < 64; sqr++) if (((bitBoards[EnumPiece.whiteKnights.ordinal()] >> sqr) & 1) == 1)
+        {
+            curr = possibleMovesWNCaptureAndMove(sqr);
+            for (int innerSqr = 0; innerSqr < 64; innerSqr++) if (((curr >> innerSqr) & 1) == 1) moves.add(new int[] {sqr, innerSqr});
+        }
+
+        return moves;
+    }
+
+    private List<int[]> possibleMovesBN()
+    {
+        long curr;
+        List<int[]> moves = new ArrayList<>();
+
+        for (int sqr = 0; sqr < 64; sqr++) if (((bitBoards[EnumPiece.blackKnights.ordinal()] >> sqr) & 1) == 1)
+        {
+            curr = possibleMovesBNCaptureAndMove(sqr);
+            for (int innerSqr = 0; innerSqr < 64; innerSqr++) if (((curr >> innerSqr) & 1) == 1) moves.add(new int[] {sqr, innerSqr});
+        }
+
+        return moves;
+    }
+
     private long possibleMovesWPSinglePush()
     {
         return (bitBoards[EnumPiece.whitePawns.ordinal()] << 8) & BoardConsts.EMPTY_SQUARES;
@@ -206,6 +234,16 @@ public class Board
     private long possibleMovesBPWestCapture()
     {
         return bitBoards[EnumPiece.blackPawns.ordinal()] & (((BoardConsts.WHITE_PIECES | enPassantTargetSquare) & ~BoardConsts.FILE_A) << 7);
+    }
+
+    private long possibleMovesWNCaptureAndMove(int square)
+    {
+        return (KnightMoves.rawMoves[square] & ~BoardConsts.WHITE_PIECES);
+    }
+
+    private long possibleMovesBNCaptureAndMove(int square)
+    {
+        return (KnightMoves.rawMoves[square] & ~BoardConsts.BLACK_PIECES);
     }
 
     long getPieceSet(int pieceSetEnum)
